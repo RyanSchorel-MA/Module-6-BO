@@ -2,7 +2,7 @@
 ## 🧩 Made By:
 Ryan Schorel | Yessin van der hulst | David Nieuwenhuizen | 
 ## ✨Kenmerken:
-De technieken die in dit project worden gebruikt zijn nog Onbekend.
+De technieken die in dit project worden gebruikt zijn: Arduino
 ## 📦 Inhoud
 * Kunst speeltuintje
 ## 🌍 Bronnen
