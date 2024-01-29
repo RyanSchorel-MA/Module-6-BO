@@ -2,23 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="photo.js" defer></script>
-    <title>Document</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-    </style>
+    <title>Underwater Camera</title>
 </head>
 <body>
+    <canvas id="canvas"></canvas>
+    <video id="camera" style="display:none;"></video>
+    <button id="captureButton" style="color: rgb(4, 147, 4); font-size: 35px;" onclick="startCapture()">Take Photo!</button>
+    <div id="timer" style="color: rgb(255, 10, 10); font-size: 50px;"></div>
 
-    <div>
-        <video id="camera"></video>
-        <canvas id="canvas"></canvas>
-    </div>
+    <script>
+        const width = 640, height = 480;
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext('2d');
 
+        let video = null, isSetup = false;
+        let bubbles = [];
+        let timerSeconds = 20; // Initial timer value in seconds
+        let timerInterval;
+
+        Setup();
+
+        function Setup() {
+            if (!isSetup) {
+                canvas.width = width;
+                canvas.height = height;
+
+                video = document.getElementById('camera');
+
+                // Get user media and play video
+                navigator.mediaDevices
+                    .getUserMedia({ video: true, audio: false })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        video.play();
+                    }).catch((err) => {
+                        console.error(`Error obtaining video stream:\n ${err}`);
+                    });
+
+                isSetup = true;
+            }
+        }
+
+        function startCapture() {
+            document.getElementById('captureButton').disabled = true; // Disable button during capture
+            timerInterval = setInterval(function () {
+                updateTimer();
+            }, 1000); // Update timer every second
+        }
+
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            if (timerSeconds > 0) {
+                timerElement.innerText = `Capture in ${timerSeconds} seconds`;
+                timerSeconds--;
+            } else {
+                timerElement.innerText = '';
+                takePhoto(null);
+                timerSeconds = 10; // Reset timer after capturing
+                clearInterval(timerInterval); // Stop the timer
+                document.getElementById('captureButton').disabled = false; // Enable button after capture
+            }
+        }
+
+        function takePhoto(e) {
+            if (e) e.preventDefault();
+
+            ctx.drawImage(video, 0, 0, width, height);
+
+            // Add coral
+            const coralImage = new Image();
+            coralImage.src = 'img/Coral1.webp'; // Replace with the path to your coral image
+            coralImage.onload = function () {
+                ctx.drawImage(coralImage, 0, 110, 200, 440);
+                ctx.drawImage(coralImage, 500, 250, 120, 270);
+            };
+
+            // Draw bubbles
+            bubbles.forEach(bubble => {
+                ctx.beginPath();
+                ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fill();
+                ctx.closePath();
+                bubble.y -= bubble.speed;
+
+                // Remove bubbles that are off-screen
+                if (bubble.y + bubble.radius < 0) {
+                    bubbles.splice(bubbles.indexOf(bubble), 1);
+                }
+            });
+
+            // Simulate underwater effect
+            ctx.fillStyle = 'rgba(0, 100, 255, 0.5)'; // Semi-transparent blue
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function generateBubble() {
+            const bubble = {
+                x: Math.random() * width,
+                y: height,
+                radius: Math.random() * 10 + 5, // Random radius between 5 and 15
+                speed: Math.random() * 2 + 1 // Random speed between 1 and 3
+            };
+            bubbles.push(bubble);
+        }
+    </script>
 </body>
 </html>
