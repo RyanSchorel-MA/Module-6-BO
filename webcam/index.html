@@ -8,8 +8,11 @@
 <body>
     <canvas id="canvas"></canvas>
     <video id="camera" style="display:none;"></video>
-    <button id="captureButton" style="color: rgb(4, 147, 4); font-size: 35px;" onclick="startCapture()">Take Photo!</button>
+    <button id="captureButton" style="color: rgb(4, 147, 4); font-size: 35px;" onclick="startCapture()">Klik hier voor een foto!</button>
     <div id="timer" style="color: rgb(255, 10, 10); font-size: 50px;"></div>
+
+    <!-- Add the audio element -->
+    <audio id="captureSound" src="/Sound/Voicy_Water bubbles.mp3" loop></audio>
 
     <script>
         const width = 640, height = 480;
@@ -18,7 +21,7 @@
 
         let video = null, isSetup = false;
         let bubbles = [];
-        let timerSeconds = 20; // Initial timer value in seconds
+        let timerSeconds = 5; // Initial timer value in seconds
         let timerInterval;
 
         Setup();
@@ -46,6 +49,8 @@
 
         function startCapture() {
             document.getElementById('captureButton').disabled = true; // Disable button during capture
+            // Play capture sound
+            document.getElementById('captureSound').play();
             timerInterval = setInterval(function () {
                 updateTimer();
             }, 1000); // Update timer every second
@@ -62,6 +67,9 @@
                 timerSeconds = 10; // Reset timer after capturing
                 clearInterval(timerInterval); // Stop the timer
                 document.getElementById('captureButton').disabled = false; // Enable button after capture
+                // Stop capture sound
+                document.getElementById('captureSound').pause();
+                document.getElementById('captureSound').currentTime = 0; // Reset audio to the beginning
             }
         }
 
